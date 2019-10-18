@@ -531,7 +531,11 @@ public class MainActivity extends BaseActivity implements OnDateSetListener, OnT
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         DetailFragment f = (DetailFragment) getFragmentManagerInstance().findFragmentByTag(FRAGMENT_DETAIL_TAG);
         if (f != null && f.isAdded()) {
-            f.onTimeSetListener.onTimeSet(view, hourOfDay, minute);
+            if( f.isSettingCreation() && f.onCreationTimeSetListener != null ) {
+                f.onCreationTimeSetListener.onTimeSet(view, hourOfDay, minute);
+            } else if( f.onTimeSetListener != null ) {
+                f.onTimeSetListener.onTimeSet(view, hourOfDay, minute);
+            }
         }
     }
 
@@ -540,8 +544,12 @@ public class MainActivity extends BaseActivity implements OnDateSetListener, OnT
     public void onDateSet(DatePicker view, int year, int monthOfYear,
                           int dayOfMonth) {
         DetailFragment f = (DetailFragment) getFragmentManagerInstance().findFragmentByTag(FRAGMENT_DETAIL_TAG);
-        if (f != null && f.isAdded() && f.onDateSetListener != null) {
-            f.onDateSetListener.onDateSet(view, year, monthOfYear, dayOfMonth);
+        if (f != null && f.isAdded() ) {
+            if( f.isSettingCreation() && f.onCreationDateSetListener != null ) {
+                f.onCreationDateSetListener.onDateSet(view, year, monthOfYear, dayOfMonth);
+            } else if (f.onDateSetListener != null) {
+                f.onDateSetListener.onDateSet(view, year, monthOfYear, dayOfMonth);
+            }
         }
     }
 

@@ -123,6 +123,7 @@ import it.feio.android.omninotes.models.adapters.AttachmentAdapter;
 import it.feio.android.omninotes.models.adapters.NavDrawerCategoryAdapter;
 import it.feio.android.omninotes.models.adapters.PlacesAutoCompleteAdapter;
 import it.feio.android.omninotes.models.listeners.OnAttachingFileListener;
+import it.feio.android.omninotes.models.listeners.OnDatePickedListener;
 import it.feio.android.omninotes.models.listeners.OnGeoUtilResultListener;
 import it.feio.android.omninotes.models.listeners.OnNoteSaved;
 import it.feio.android.omninotes.models.listeners.OnReminderPickedListener;
@@ -143,6 +144,8 @@ import it.feio.android.omninotes.utils.ShortcutHelper;
 import it.feio.android.omninotes.utils.StorageHelper;
 import it.feio.android.omninotes.utils.TagsHelper;
 import it.feio.android.omninotes.utils.TextHelper;
+import it.feio.android.omninotes.utils.WiHelper;
+import it.feio.android.omninotes.utils.date.DatePickers;
 import it.feio.android.omninotes.utils.date.DateUtils;
 import it.feio.android.omninotes.utils.date.ReminderPickers;
 import it.feio.android.pixlui.links.TextLinkClickListener;
@@ -167,6 +170,11 @@ public class DetailFragment extends BaseFragment implements OnReminderPickedList
 	private static final int RC_READ_EXTERNAL_STORAGE_PERMISSION = 1;
 	public OnDateSetListener onDateSetListener;
 	public OnTimeSetListener onTimeSetListener;
+
+	private boolean bSettingCreation = false;
+	public OnDateSetListener onCreationDateSetListener;
+	public OnTimeSetListener onCreationTimeSetListener;
+
 	public boolean goBack = false;
 	@BindView(R.id.detail_root)
 	ViewGroup root;
@@ -606,6 +614,10 @@ public class DetailFragment extends BaseFragment implements OnReminderPickedList
 		initViewFooter();
 	}
 
+	public boolean isSettingCreation() {
+		return bSettingCreation;
+	}
+
 	private void initViewFooter() {
 		// Footer dates of creation...
 		String creation = DateHelper.getFormattedDate(noteTmp.getCreation(), prefs.getBoolean(Constants
@@ -613,6 +625,24 @@ public class DetailFragment extends BaseFragment implements OnReminderPickedList
 		creationTextView.append(creation.length() > 0 ? getString(R.string.creation) + " " + creation : "");
 		if (creationTextView.getText().length() == 0)
 			creationTextView.setVisibility(View.GONE);
+
+		creationTextView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				bSettingCreation = true;
+				int pickerType = prefs.getBoolean("settings_simple_calendar", false) ? ReminderPickers.TYPE_AOSP :
+						ReminderPickers.TYPE_GOOGLE;
+				DatePickers datePicker = new DatePickers(mainActivity, new OnDatePickedListener(){
+					public void onReminderPicked(long date) {
+						noteTmp.setCreation(date);
+						bSettingCreation = false;
+					}
+				}, pickerType);
+				datePicker.pick(noteTmp.getCreation());
+				onCreationDateSetListener = datePicker;
+				onCreationTimeSetListener = datePicker;
+			}
+		});
 
 		// ... and last modification
 		String lastModification = DateHelper.getFormattedDate(noteTmp.getLastModification(), prefs.getBoolean(Constants
@@ -1538,6 +1568,7 @@ public class DetailFragment extends BaseFragment implements OnReminderPickedList
 	 * Save new notes, modify them or archive
 	 */
 	void saveNote(OnNoteSaved mOnNoteSaved) {
+		WiHelper.logd("saveNote invoked!");
 
 		// Changed fields
 		noteTmp.setTitle(getNoteTitle());

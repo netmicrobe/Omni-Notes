@@ -30,6 +30,7 @@ import it.feio.android.omninotes.models.Note;
 import it.feio.android.omninotes.models.listeners.OnNoteSaved;
 import it.feio.android.omninotes.utils.ReminderHelper;
 import it.feio.android.omninotes.utils.StorageHelper;
+import it.feio.android.omninotes.utils.WiHelper;
 import it.feio.android.omninotes.utils.date.DateUtils;
 
 
@@ -50,6 +51,7 @@ public class SaveNoteTask extends AsyncTask<Note, Void, Note> {
 		this.context = OmniNotes.getAppContext();
 		this.mOnNoteSaved = mOnNoteSaved;
 		this.updateLastModification = updateLastModification;
+		WiHelper.logd("SaveNoteTask constructor: updateLastModification : " + updateLastModification);
 	}
 
 
