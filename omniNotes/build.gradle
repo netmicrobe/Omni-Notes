@@ -36,6 +36,15 @@ if(signConfigExists) {
 
 android {
 
+    // 关闭lint warning、progurad混淆。
+    lintOptions {
+        abortOnError false        // true by default
+        checkAllWarnings false
+        checkReleaseBuilds false
+        ignoreWarnings true       // false by default
+        quiet true                // false by default
+    }
+
     if (project.hasProperty("SIGN_PROPS")
             && new File(project.property("SIGN_PROPS").toString()).exists()) {
         Properties props = new Properties()
@@ -74,7 +83,8 @@ android {
             testCoverageEnabled false
         }
         release {
-            minifyEnabled true
+            minifyEnabled false
+            useProguard false
             shrinkResources false
             multiDexEnabled false
             testCoverageEnabled false
@@ -95,16 +105,16 @@ android {
         play {
             dimension "standard"
         }
-        foss {
-            dimension "standard"
-            applicationId project.PACKAGE + ".foss"
-        }
         beta {
             dimension "standard"
         }
         alpha {
             dimension "standard"
             applicationId project.PACKAGE + ".alpha"
+        }
+        foss {
+            dimension "standard"
+            applicationId project.PACKAGE + ".foss"
         }
     }
     lintOptions {

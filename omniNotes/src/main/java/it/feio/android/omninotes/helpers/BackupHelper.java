@@ -32,6 +32,7 @@ import it.feio.android.omninotes.models.Note;
 import it.feio.android.omninotes.utils.Constants;
 import it.feio.android.omninotes.utils.StorageHelper;
 import it.feio.android.omninotes.utils.TextHelper;
+import it.feio.android.omninotes.utils.WiHelper;
 import it.feio.android.omninotes.utils.notifications.NotificationsHelper;
 import rx.Observable;
 
@@ -200,6 +201,7 @@ public class BackupHelper {
 	public static boolean importAttachments(File backupDir, NotificationsHelper notificationsHelper) {
 		File attachmentsDir = StorageHelper.getAttachmentDir();
 		File backupAttachmentsDir = new File(backupDir, attachmentsDir.getName());
+
 		if (!backupAttachmentsDir.exists()) return true;
 		boolean result = true;
 		Collection list = FileUtils.listFiles(backupAttachmentsDir, FileFilterUtils.trueFileFilter(),
@@ -310,6 +312,18 @@ public class BackupHelper {
 		if (database.exists()) {
 			database.delete();
 		}
+
+		// SQLite在3.7.0版本引入了WAL（Write Ahead Logging），
+		// 修改并不直接写入到数据库文件中，而是写入到另外一个称为WAL的文件中；
+		// 如果事务失败，WAL中的记录会被忽略，撤销修改；如果事务成功，它将在随后的某个时间被写回到数据库文件中，提交修改。
+		// 所以，每次替换了db文件，又被之前的wal给回写了。
+		// 解决方法：
+		// 用备份的db替换已有db文件同时，删除wal和shm文件
+		File database_shm = context.getDatabasePath(Constants.DATABASE_NAME_SHM);
+		File database_wal = context.getDatabasePath(Constants.DATABASE_NAME_WAL);
+		if( database_shm.exists() ) database_shm.delete();
+		if( database_wal.exists() ) database_wal.delete();
+
 		return (StorageHelper.copyFile(new File(backupDir, Constants.DATABASE_NAME), database));
 	}
 

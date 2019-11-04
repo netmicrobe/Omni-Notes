@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -325,6 +326,24 @@ public class StorageHelper {
                 + System.getProperty("file.separator")
                 + packageName
                 + "_preferences.xml");
+    }
+
+    public static void logAppDataFiles(Context mContext) {
+        File appData = mContext.getFilesDir().getParentFile();
+        logDir(appData);
+        WiHelper.logd("----------");
+        logDir(new File("/data/data/it.feio.android.omninotes.alpha"));
+    }
+
+    public static void logDir(File dir) {
+        if( dir.isDirectory() ) {
+            File[] files = dir.listFiles();
+            for (File f : files) {
+                logDir(f);
+            }
+        } else {
+            WiHelper.logd("   " + dir.getAbsolutePath() + " [ " + dir.length() + " ] ");
+        }
     }
 
 

@@ -19,6 +19,8 @@ package it.feio.android.omninotes.utils;
 public interface ConstantsBase {
 
 	String DATABASE_NAME = "omni-notes";
+	String DATABASE_NAME_SHM = "omni-notes-shm";
+	String DATABASE_NAME_WAL = "omni-notes-wal";
 	String APP_STORAGE_DIRECTORY_SB_SYNC = "db_sync";
 
 	String DEV_EMAIL = "omninotes@iosue.it";
